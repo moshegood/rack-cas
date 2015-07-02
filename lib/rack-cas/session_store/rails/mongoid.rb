@@ -1,7 +1,6 @@
 require 'rack-cas/session_store/mongoid'
-require 'action_dispatch/middleware/session/abstract_store'
 
-module ActionDispatch
+module ActionController
   module Session
     class RackCasMongoidStore < AbstractStore
       include RackCAS::MongoidStore
