@@ -1,6 +1,7 @@
+require 'active_record'
 module RackCAS
   module ActiveRecordStore
-    class Session < ActiveRecord::Base
+    class Session < ::ActiveRecord::Base
     end
 
     def self.destroy_session_by_cas_ticket(cas_ticket)
@@ -30,7 +31,7 @@ module RackCAS
     def set_session(env, sid, session_data, options={})
       cas_ticket = (session_data['cas']['ticket'] unless session_data['cas'].nil?)
 
-      session = if ActiveRecord.respond_to?(:version) && ActiveRecord.version >= Gem::Version.new('4.0.0')
+      session = if ::ActiveRecord.respond_to?(:version) && ::ActiveRecord.version >= Gem::Version.new('4.0.0')
         Session.where(:session_id => sid).first_or_initialize
       else
         Session.find_or_initialize_by_session_id(sid)
