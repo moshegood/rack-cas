@@ -10,7 +10,7 @@ module RackCAS
 
     def login_url(service_url, params = {})
       service_url = URL.parse(service_url).to_s
-      base_params = {service: service_url}
+      base_params = {:service => service_url}
       base_params[:renew] = true if RackCAS.config.renew?
 
       @url.dup.append_path('login').add_params(base_params.merge(params))
@@ -41,7 +41,7 @@ module RackCAS
 
     def validate_service_url(service_url, ticket)
       service_url = URL.parse(service_url).remove_param('ticket').to_s
-      @url.dup.append_path('serviceValidate').add_params(service: service_url, ticket: ticket)
+      @url.dup.append_path('serviceValidate').add_params(:service => service_url, :ticket => ticket)
     end
   end
 end

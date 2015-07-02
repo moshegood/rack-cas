@@ -4,7 +4,7 @@ module RackCAS
     end
 
     def self.destroy_session_by_cas_ticket(cas_ticket)
-      affected = Session.delete_all(cas_ticket: cas_ticket)
+      affected = Session.delete_all(:cas_ticket => cas_ticket)
       affected == 1
     end
 
@@ -20,7 +20,7 @@ module RackCAS
         sid = generate_sid
         data = nil
       else
-        session = Session.where(session_id: sid).first || {}
+        session = Session.where(:session_id => sid).first || {}
         data = unpack(session['data'])
       end
 
@@ -31,7 +31,7 @@ module RackCAS
       cas_ticket = (session_data['cas']['ticket'] unless session_data['cas'].nil?)
 
       session = if ActiveRecord.respond_to?(:version) && ActiveRecord.version >= Gem::Version.new('4.0.0')
-        Session.where(session_id: sid).first_or_initialize
+        Session.where(:session_id => sid).first_or_initialize
       else
         Session.find_or_initialize_by_session_id(sid)
       end
@@ -43,7 +43,7 @@ module RackCAS
     end
 
     def destroy_session(env, sid, options)
-      Session.where(session_id: sid).delete_all
+      Session.where(:session_id => sid).delete_all
 
       options[:drop] ? nil : generate_sid
     end

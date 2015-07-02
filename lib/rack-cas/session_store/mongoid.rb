@@ -4,19 +4,19 @@ module RackCAS
       include Mongoid::Document
       include Mongoid::Timestamps
 
-      field :_id, type: String
+      field :_id, :type => String
       if defined? Moped::BSON
         # Mongoid < 4
-        field :data, type: Moped::BSON::Binary, default: Moped::BSON::Binary.new(:generic, Marshal.dump({}))
+        field :data, :type => Moped::BSON::Binary, :default => Moped::BSON::Binary.new(:generic, Marshal.dump({}))
       else
         # Mongoid 4
-        field :data, type: BSON::Binary, default: BSON::Binary.new(Marshal.dump({}))
+        field :data, :type => BSON::Binary, :default => BSON::Binary.new(Marshal.dump({}))
       end
-      field :cas_ticket, type: String
+      field :cas_ticket, :type => String
     end
 
     def self.destroy_session_by_cas_ticket(cas_ticket)
-      affected = Session.where(cas_ticket: cas_ticket).delete
+      affected = Session.where(:cas_ticket => cas_ticket).delete
       affected == 1
     end
 
@@ -32,7 +32,7 @@ module RackCAS
         sid = generate_sid
         data = nil
       else
-        session = Session.where(_id: sid).first || {}
+        session = Session.where(:_id => sid).first || {}
         data = unpack(session['data'])
       end
 
@@ -42,14 +42,14 @@ module RackCAS
     def set_session(env, sid, session_data, options)
       cas_ticket = (session_data['cas']['ticket'] unless session_data['cas'].nil?)
 
-      session = Session.find_or_initialize_by(_id: sid)
-      success = session.update_attributes(data: pack(session_data), cas_ticket: cas_ticket)
+      session = Session.find_or_initialize_by(:_id => sid)
+      success = session.update_attributes(:data => pack(session_data), :cas_ticket => cas_ticket)
 
       success ? session.id : false
     end
 
     def destroy_session(env, sid, options)
-      session = Session.where(_id: sid).delete
+      session = Session.where(:_id => sid).delete
 
       options[:drop] ? nil : generate_sid
     end
